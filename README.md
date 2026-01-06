@@ -5,7 +5,7 @@ Swift 6 macros for ergonomic enum access to imported C string constants.
 ## Overview
 
 
-Let's say we have a .h file (in this case, IOPSKeys.h) with a bunch of d
+Let's say we have a .h file (in this case, IOPSKeys.h) with a bunch of defines
 
 ```c
  /*!
@@ -109,7 +109,7 @@ if let cenum = IOPSKey(rawValue: "AdapterID") {
 
 Or, more importantly (and likely)
 
-``swift
+```swift
 for key in dict.keys {
   if let keynum = IOPSKey(rawValue: key) {
     // now we have a strongly typed dot not'd enum, nice.
