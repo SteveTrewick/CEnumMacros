@@ -4,10 +4,33 @@ Swift 6 macros for ergonomic enum access to imported C string constants.
 
 ## Overview
 
+
+Let's say we have a .h file (in this case, IOPSKeys.h) with a bunch of d
+
+```c
+ /*!
+  @define kIOPSPowerAdapterIDKey
+  @astract This key refers to the attached external AC power adapter's ID.
+         The value associated with this key is a CFNumberRef intger.
+  @discussion This key may be present in the dictionary returned from @link IOPSCopyExternalPowerAdapterDetails @/link
+         This key might not be defined for any given power source.
+  */
+ #define kIOPSPowerAdapterIDKey          "AdapterID"
+```
+
 Swift can’t use imported C `#define` string constants as enum raw values because
 raw values must be compile-time literals. This package instead generates
 `RawRepresentable` conformance that *uses the imported constants directly*
 at runtime.
+
+So we can't do this :
+```swift
+enum IOPSKey : String {
+  case powerAdapterID = kIOPSPowerAdapterIDKey
+}
+```
+
+But we **can** do *this* :
 
 ## Usage
 
@@ -47,6 +70,7 @@ enum IOPSKey {
 }
 ```
 
+
 The macro expands to a `RawRepresentable` implementation like:
 
 ```swift
@@ -71,6 +95,24 @@ extension IOPSKey: RawRepresentable {
       case .powerAdapterWatts:
       return kIOPSPowerAdapterWattsKey
     }
+  }
+}
+```
+
+So we can do things like :
+
+```swift
+if let cenum = IOPSKey(rawValue: "AdapterID") {
+  print(cenum)
+}
+```
+
+Or, more importantly (and likely)
+
+``swift
+for key in dict.keys {
+  if let keynum = IOPSKey(rawValue: key) {
+    // now we have a strongly typed dot not'd enum, nice.
   }
 }
 ```
