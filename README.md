@@ -117,6 +117,47 @@ for key in dict.keys {
 }
 ```
 
+### Generate enums from headers
+
+You can auto-generate the enum cases from a C header using the bundled
+`CEnumGen` CLI. It reads `#define` names, applies a match rule and simple name
+transforms, and emits a Swift file that uses `@CEnumRawValues` and
+`@CEnumValue(...)`. Build tool plugins are intentionally not used here (Xcode
+support is unreliable), so prefer a Run Script build phase or a `swift run`
+invocation.
+
+Add a `CEnumGen.json` file to the target's source directory:
+
+```json
+{
+  "input": "IOPSKeys.h",
+  "enum": "IOPSKey",
+  "match": "^kIOPS.*Key$",
+  "dropPrefix": ["kIOPS"],
+  "dropSuffix": ["Key"],
+  "caseStyle": "lowerCamel",
+  "imports": ["IOKit", "IOKit.ps"]
+}
+```
+
+The generated file is written into the target’s derived sources directory. You
+can customize:
+
+- `match` to choose which `#define` names to include.
+- `dropPrefix` / `dropSuffix` (arrays) to trim names.
+- `caseStyle` (`lowerCamel`, `upperCamel`, `keep`) to control case names.
+- `access` (`public`, `internal`, `package`, `fileprivate`, `private`) to set enum access.
+- `imports` (array) to add extra `import` lines above `import CEnumMacros`.
+
+Paths in `CEnumGen.json` are resolved relative to the config file location, so
+use `"../../IOPSKeys.h"` if the header lives above the target directory.
+
+You can run the generator directly:
+
+```sh
+swift run --package-path CEnumMacros CEnumGen --config MacTest/MacTest/CEnumGen.json
+```
+
 ### Notes
 
 - Don’t declare a raw type or other conformances on the enum; the macro adds

@@ -31,6 +31,10 @@ let package = Package(
             name: "CEnumMacros",
             dependencies: ["CEnumMacrosMacros"]
         ),
+        .executableTarget(
+            name: "CEnumGen",
+            path: "Sources/CEnumGen"
+        ),
         .testTarget(
             name: "CEnumMacrosTests",
             dependencies: [
